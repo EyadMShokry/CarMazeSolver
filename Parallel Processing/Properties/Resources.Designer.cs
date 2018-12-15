@@ -60,54 +60,6 @@ namespace Parallel_Processing.Properties {
             }
         }
 
-        internal static System.Drawing.Bitmap car0
-        {
-            get
-            {
-                object obj = ResourceManager.GetObject("car0", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap car1
-        {
-            get
-            {
-                object obj = ResourceManager.GetObject("car1", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap car2
-        {
-            get
-            {
-                object obj = ResourceManager.GetObject("car2", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap car3
-        {
-            get
-            {
-                object obj = ResourceManager.GetObject("car3", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap empty
         {
             get
@@ -142,14 +94,6 @@ namespace Parallel_Processing.Properties {
         internal static System.Drawing.Bitmap path {
             get {
                 object obj = ResourceManager.GetObject("path", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        internal static System.Drawing.Bitmap path2
-        {
-            get
-            {
-                object obj = ResourceManager.GetObject("path2", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

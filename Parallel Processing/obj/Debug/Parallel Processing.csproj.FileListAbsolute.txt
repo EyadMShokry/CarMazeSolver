@@ -40,7 +40,6 @@ C:\Users\Karim-Dev\Documents\GitHub\Parallel Processing\CarMazeSolver\Parallel P
 C:\Users\Karim-Dev\Documents\GitHub\Parallel Processing\CarMazeSolver\Parallel Processing\obj\Debug\MazeSolver.Form1.resources
 C:\Users\Karim-Dev\Documents\GitHub\Parallel Processing\CarMazeSolver\Parallel Processing\obj\Debug\Parallel_Processing.Properties.Resources.resources
 C:\Users\Karim-Dev\Documents\GitHub\Parallel Processing\CarMazeSolver\Parallel Processing\obj\Debug\Parallel_Processing.ResultForm.resources
-C:\Users\Karim-Dev\Documents\GitHub\Parallel Processing\CarMazeSolver\Parallel Processing\obj\Debug\Parallel_Processing.ResultForm2.resources
 C:\Users\Karim-Dev\Documents\GitHub\Parallel Processing\CarMazeSolver\Parallel Processing\obj\Debug\Parallel Processing.csproj.GenerateResource.Cache
 C:\Users\Karim-Dev\Documents\GitHub\Parallel Processing\CarMazeSolver\Parallel Processing\bin\Debug\Parallel Processing.exe
 C:\Users\Karim-Dev\Documents\GitHub\Parallel Processing\CarMazeSolver\Parallel Processing\bin\Debug\Parallel Processing.pdb
