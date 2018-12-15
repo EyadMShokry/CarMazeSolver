@@ -102,7 +102,7 @@ namespace Parallel_Processing
                 Point p = new Point(i, j);
                 Func<int> start = delegate ()
                 {
-                    switch (item.dir)
+                    switch (item.direction)
                     {
                         case 0:
                             Box[i, j].Image = Properties.Resources.car0;

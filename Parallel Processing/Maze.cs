@@ -14,15 +14,15 @@ namespace Parallel_Processing
     public struct CarNode
     {
 
-        public CarNode(Point Point, int direction, int currentpath)
+        public CarNode(Point Point, int direction, int path)
         {
             this.Point = Point;
             this.direction = direction;
-            this.currentpath = currentpath;
+            this.path = path;
         }
         public Point Point;
         public int direction;
-        public int currentpath;
+        public int path;
     };
     class Maze
     {
@@ -31,9 +31,9 @@ namespace Parallel_Processing
         int MazeBoard_x;
         int MazeBoard_y;
         bool[,] boolPoint;
-        Dictionary<Tuple<Point, int>, CarNode> par;
+        Dictionary<Tuple<Point, int>, CarNode> PathReference;
         List<Tuple<Point, int>> visitedNodes;
-        List<Point> BlockedNodes;
+        List<Point> BlockedPoints;
         Point startPoint;
         Point endPoint;
         CarNode node;
@@ -50,7 +50,7 @@ namespace Parallel_Processing
         {
             startPoint = new Point(-1, -1);
             endPoint = new Point(-1, -1);
-            BlockedNodes = new List<Point>();
+            BlockedPoints = new List<Point>();
             sw = new Stopwatch();
 
         }
@@ -78,7 +78,7 @@ namespace Parallel_Processing
                     else if (rows[i][j] == '*')
                     {
                         boolPoint[j, i] = true;
-                        BlockedNodes.Add(new Point(j, i));
+                        BlockedPoints.Add(new Point(j, i));
                     }
                 }
             }
@@ -89,41 +89,41 @@ namespace Parallel_Processing
             sw.Start();
             if (startPoint == new Point(-1, -1) || endPoint == new Point(-1, -1))
             {
-                MessageBox.Show("Start Point and End Point Required", "Hey !!", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                MessageBox.Show("Start Point or End Point isn't set", "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
             }
-            else if (BFS(startPoint))
+            else if (Search(startPoint))
             {
                 List<CarNode> PATH = new List<CarNode>();
                 PATH.Add(node);
                 while (node.path != 0)
                 {
                     Tuple<Point, int> tuple = new Tuple<Point, int>(node.Point, node.direction);
-                    node = par[tuple];
+                    node = PathReference[tuple];
                     PATH.Add(node);
                 }
                 ts = sw.Elapsed;
                 Console.WriteLine(ts.ToString());
                 String Time = string.Format("Timer:{0,2}.{1,2}", ts.Seconds, ts.Milliseconds);
                 sw.Stop();
-                ResultForm ResultForm = new ResultForm(MazeBoard_x, MazeBoard_y, startPoint, endPoint, BlockedNodes, PATH, Time);
-                ResultForm.ShowDialog();
+                ResultForm resultForm = new ResultForm(MazeBoard_x, MazeBoard_y, startPoint, endPoint, BlockedPoints, PATH, Time);
+                resultForm.ShowDialog();
             }
             else
-                MessageBox.Show("No Path Found", "Sorry", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No Path", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         public bool valid(Point Point)  //check valid position and valid cell
         {
-            if (BlockedNodes.Contains(Point) || Point.X >= MazeBoard_x || Point.Y >= MazeBoard_y || Point.X < 0 || Point.Y < 0)
+            if (BlockedPoints.Contains(Point) || Point.X >= MazeBoard_x || Point.Y >= MazeBoard_y || Point.X < 0 || Point.Y < 0)
                 return false;
             return true;
         }
 
-        private bool BFS(Point point)
+        private bool Search(Point point)
         {
             queue = new Queue<CarNode>();
             node = new CarNode(point, 0, 0);
-            par = new Dictionary<Tuple<Point, int>, CarNode>();
             visitedNodes = new List<Tuple<Point, int>>();
+            PathReference = new Dictionary<Tuple<Point, int>, CarNode>();
             queue.Enqueue(node);
             while (queue.Count > 0)
             {
@@ -134,12 +134,12 @@ namespace Parallel_Processing
                 {
                     int new_direction = (node.direction + i) % 4;
                     Point new_point = new Point(node.Point.X + direction_x[new_direction], node.Point.Y + direction_y[new_direction]);
-                    Tuple<Point, int> tuple = new Tuple<Point, int>(new_point, new_direction);
-                    if (valid(new_point) && !visitedNodes.Contains(tuple))
+                    Tuple<Point, int> new_reference = new Tuple<Point, int>(new_point, new_direction);
+                    if (valid(new_point) && !visitedNodes.Contains(new_reference))
                     {
                         queue.Enqueue(new CarNode(new_point, new_direction, node.path + 1));
-                        par[tuple] = new CarNode(node.Point, node.direction, node.path);
-                        visitedNodes.Add(tuple);
+                        PathReference[new_reference] = new CarNode(node.Point, node.direction, node.path);
+                        visitedNodes.Add(new_reference);
                     }
                 }
             }
@@ -149,7 +149,7 @@ namespace Parallel_Processing
         {
             if (startPoint == new Point(-1, -1) || endPoint == new Point(-1, -1))
             {
-                MessageBox.Show("Start Point and End Point Required", "Hey !!", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                MessageBox.Show("Start Point or End Point isn't set", "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
             }
             else
             {
@@ -165,7 +165,7 @@ namespace Parallel_Processing
                     ts = sw.Elapsed;
                     string Timer = string.Format("Timer:{0,2}.{1,2}", ts.Seconds, ts.Milliseconds);
                     sw.Stop();
-                    ResultForm ResultForm = new ResultForm(MazeBoard_x, MazeBoard_y, startPoint, endPoint, BlockedNodes, Resultnodes,Timer);
+                    ResultForm ResultForm = new ResultForm(MazeBoard_x, MazeBoard_y, startPoint, endPoint, BlockedPoints, Resultnodes,Timer);
                     ResultForm.ShowDialog();
                 }
             }
