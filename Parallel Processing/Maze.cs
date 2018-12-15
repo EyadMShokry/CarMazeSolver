@@ -83,6 +83,13 @@ namespace Parallel_Processing
                 }
             }
         }
+        private bool is_valid(Point Point)
+        {
+            if (BlockedPoints.Contains(Point) || Point.X >= MazeBoard_x || Point.Y >= MazeBoard_y || Point.X < 0 || Point.Y < 0)
+                return false;
+            return true;
+        }
+
         public void Sequential_Solve()
         {
             sw.Reset();
@@ -91,60 +98,55 @@ namespace Parallel_Processing
             {
                 MessageBox.Show("Start Point or End Point isn't set", "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
             }
-            else if (Search(startPoint))
-            {
-                List<CarNode> PATH = new List<CarNode>();
-                PATH.Add(node);
-                while (node.path != 0)
-                {
-                    Tuple<Point, int> tuple = new Tuple<Point, int>(node.Point, node.direction);
-                    node = PathReference[tuple];
-                    PATH.Add(node);
-                }
-                ts = sw.Elapsed;
-                Console.WriteLine(ts.ToString());
-                String Time = string.Format("Timer:{0,2}.{1,2}", ts.Seconds, ts.Milliseconds);
-                sw.Stop();
-                ResultForm resultForm = new ResultForm(MazeBoard_x, MazeBoard_y, startPoint, endPoint, BlockedPoints, PATH, Time);
-                resultForm.ShowDialog();
-            }
             else
-                MessageBox.Show("No Path", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-        public bool valid(Point Point)  //check valid position and valid cell
-        {
-            if (BlockedPoints.Contains(Point) || Point.X >= MazeBoard_x || Point.Y >= MazeBoard_y || Point.X < 0 || Point.Y < 0)
-                return false;
-            return true;
-        }
-
-        private bool Search(Point point)
-        {
-            queue = new Queue<CarNode>();
-            node = new CarNode(point, 0, 0);
-            visitedNodes = new List<Tuple<Point, int>>();
-            PathReference = new Dictionary<Tuple<Point, int>, CarNode>();
-            queue.Enqueue(node);
-            while (queue.Count > 0)
             {
-                node = queue.Dequeue();
-                if (node.Point == endPoint)
-                    return true;
-                for (int i = 0; i < 2; ++i)
+                queue = new Queue<CarNode>();
+                node = new CarNode(startPoint, 0, 0);
+                visitedNodes = new List<Tuple<Point, int>>();
+                PathReference = new Dictionary<Tuple<Point, int>, CarNode>();
+                queue.Enqueue(node);
+                bool status = false;
+                while (queue.Count > 0)
                 {
-                    int new_direction = (node.direction + i) % 4;
-                    Point new_point = new Point(node.Point.X + direction_x[new_direction], node.Point.Y + direction_y[new_direction]);
-                    Tuple<Point, int> new_reference = new Tuple<Point, int>(new_point, new_direction);
-                    if (valid(new_point) && !visitedNodes.Contains(new_reference))
+                    node = queue.Dequeue();
+                    if (node.Point == endPoint)
                     {
-                        queue.Enqueue(new CarNode(new_point, new_direction, node.path + 1));
-                        PathReference[new_reference] = new CarNode(node.Point, node.direction, node.path);
-                        visitedNodes.Add(new_reference);
+                        status = true;
+                        List<CarNode> PATH = new List<CarNode>();
+                        PATH.Add(node);
+                        while (node.path != 0)
+                        {
+                            Tuple<Point, int> tuple = new Tuple<Point, int>(node.Point, node.direction);
+                            node = PathReference[tuple];
+                            PATH.Add(node);
+                        }
+                        ts = sw.Elapsed;
+                        Console.WriteLine(ts.ToString());
+                        String Time = string.Format("Timer:{0,2}.{1,2}", ts.Seconds, ts.Milliseconds);
+                        sw.Stop();
+                        ResultForm resultForm = new ResultForm(MazeBoard_x, MazeBoard_y, startPoint, endPoint, BlockedPoints, PATH, Time);
+                        resultForm.ShowDialog();
+                        break;
+                    }
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        int new_direction = (node.direction + i) % 4;
+                        Point new_point = new Point(node.Point.X + direction_x[new_direction], node.Point.Y + direction_y[new_direction]);
+                        Tuple<Point, int> new_reference = new Tuple<Point, int>(new_point, new_direction);
+                        if (is_valid(new_point) && !visitedNodes.Contains(new_reference))
+                        {
+                            queue.Enqueue(new CarNode(new_point, new_direction, node.path + 1));
+                            PathReference[new_reference] = new CarNode(node.Point, node.direction, node.path);
+                            visitedNodes.Add(new_reference);
+                        }
                     }
                 }
+                if(status == false)
+                    MessageBox.Show("No Path", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            return false;
+                          
         }
+
         public async void Parallel_Solve()
         {
             if (startPoint == new Point(-1, -1) || endPoint == new Point(-1, -1))
@@ -153,12 +155,12 @@ namespace Parallel_Processing
             }
             else
             {
-                bool tsk = await Operation();
-                if (!tsk)
+                bool booltask = await Operation();
+                if (!booltask)
                 {
                     ts = sw.Elapsed;
                     sw.Stop();
-                    MessageBox.Show("No Path", "Sorry", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("No Path", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
@@ -219,7 +221,7 @@ namespace Parallel_Processing
             {
                 int new_direction = (node.direction + i) % 4;
                 Point new_point = new Point(node.Point.X + direction_x[new_direction], node.Point.Y + direction_y[new_direction]);
-                if (valid(new_point) && !nodes.Exists(n => n.Point == new_point && n.direction == new_direction))
+                if (is_valid(new_point) && !nodes.Exists(n => n.Point == new_point && n.direction == new_direction))
                     ls.Add(new CarNode(new_point, new_direction, node.path + 1));
             }
             if (ls.Count == 2)
