@@ -7,3 +7,9 @@ The maze can be thought of as a m×n grid where some of the squares in the grid 
 
 Find an efficient algorithm to find the shortest route to escape from the maze and implement it.
 Input maze should be in text file filled with some characters, for example “.” Could represent empty area, “*” could represent block, “c” could represents the car, “e” could represent the exit.
+
+# Members #
+* Antoin Ashraf Fathy
+* Eyad Mohamed Shokry
+* Karim Mamdouh
+* Marc Essam Erian
