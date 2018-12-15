@@ -41,8 +41,8 @@ namespace Parallel_Processing
         private Stopwatch sw;
         private TimeSpan ts;
         List<Task> Tasks;
-        CancellationTokenSource cts = new CancellationTokenSource();
-        private readonly Mutex m_lock = new Mutex();
+        CancellationTokenSource cantoks = new CancellationTokenSource();
+        private readonly Mutex mutex_lock = new Mutex();
         bool finish;
         private List<CarNode> Resultnodes;
 
@@ -154,7 +154,7 @@ namespace Parallel_Processing
             }
             else
             {
-                bool booltask = await Operation();
+                bool booltask = await Parallel_Search_function();
                 if (!booltask)
                 {
                     ts = sw.Elapsed;
@@ -171,18 +171,18 @@ namespace Parallel_Processing
                 }
             }
         }
-        private async Task<bool> Operation()
+        private async Task<bool> Parallel_Search_function()
         {
             try
             {
                 sw.Reset();
                 sw.Start();
-                cts = new CancellationTokenSource();
+                cantoks = new CancellationTokenSource();
                 List<CarNode> Lis = new List<CarNode>();
                 Tasks = new List<Task>();
                 Lis.Add(new CarNode(startPoint, 0, 0));
                 this.finish = false;
-                Task task = Task.Run(() => MyThread(Lis, cts.Token));
+                Task task = Task.Run(() => NodesThread(Lis, cantoks.Token));
                 Tasks.Add(task);
                 await Task.WhenAny(Tasks);
                 if (this.finish)
@@ -197,47 +197,47 @@ namespace Parallel_Processing
 
         }
 
-        private void MyThread(List<CarNode> nodes, CancellationToken cts)
+        private void NodesThread(List<CarNode> nodes, CancellationToken cantoks)
         {
-            List<CarNode> ls = new List<CarNode>();
+            List<CarNode> nodes_lst = new List<CarNode>();
             node = nodes.Last();
-            m_lock.WaitOne();
-            if (cts.IsCancellationRequested)
+            mutex_lock.WaitOne();
+            if (cantoks.IsCancellationRequested)
             {
-                m_lock.ReleaseMutex();
+                mutex_lock.ReleaseMutex();
                 return;
             }
             if (node.Point == endPoint)
             {
-                this.cts.Cancel();
+                this.cantoks.Cancel();
                 Resultnodes = nodes;
                 this.finish = true;
-                m_lock.ReleaseMutex();
+                mutex_lock.ReleaseMutex();
                 return;
             }
-            m_lock.ReleaseMutex();
+            mutex_lock.ReleaseMutex();
             for (int i = 0; i < 2; ++i)
             {
                 int new_direction = (node.direction + i) % 4;
                 Point new_point = new Point(node.Point.X + direction_x[new_direction], node.Point.Y + direction_y[new_direction]);
                 if (is_valid(new_point) && !nodes.Exists(n => n.Point == new_point && n.direction == new_direction))
-                    ls.Add(new CarNode(new_point, new_direction, node.path + 1));
+                    nodes_lst.Add(new CarNode(new_point, new_direction, node.path + 1));
             }
-            if (ls.Count == 2)
+            if (nodes_lst.Count == 2)
             {
 
-                List<CarNode> rnode = new List<CarNode>(nodes);
-                List<CarNode> lnode = new List<CarNode>(nodes);
-                rnode.Add(ls.Last());
-                lnode.Add(ls.First());
-                Task task = Task.Run(() => MyThread(rnode, cts));
+                List<CarNode> right_node = new List<CarNode>(nodes);
+                List<CarNode> left_node = new List<CarNode>(nodes);
+                right_node.Add(nodes_lst.Last());
+                left_node.Add(nodes_lst.First());
+                Task task = Task.Run(() => NodesThread(right_node, cantoks));
                 Tasks.Add(task);
-                MyThread(lnode, cts);
+                NodesThread(left_node, cantoks);
             }
-            else if (ls.Count == 1)
+            else if (nodes_lst.Count == 1)
             {
-                nodes.Add(ls.Last());
-                MyThread(nodes, cts);
+                nodes.Add(nodes_lst.Last());
+                NodesThread(nodes, cantoks);
             }
             return;
         }
