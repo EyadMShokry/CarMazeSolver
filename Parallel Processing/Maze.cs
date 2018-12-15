@@ -200,7 +200,7 @@ namespace Parallel_Processing
         private void NodesThread(List<CarNode> nodes, CancellationToken cantoks)
         {
             List<CarNode> nodes_lst = new List<CarNode>();
-            node = nodes.Last();
+            CarNode node = nodes.Last();
             mutex_lock.WaitOne();
             if (cantoks.IsCancellationRequested)
             {
