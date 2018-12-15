@@ -92,7 +92,6 @@ namespace Parallel_Processing
 
         public void Sequential_Solve()
         {
-            sw.Reset();
             sw.Start();
             if (startPoint == new Point(-1, -1) || endPoint == new Point(-1, -1))
             {
@@ -176,7 +175,6 @@ namespace Parallel_Processing
         {
             try
             {
-                sw.Reset();
                 sw.Start();
                 cts = new CancellationTokenSource();
                 List<CarNode> Lis = new List<CarNode>();
@@ -201,7 +199,7 @@ namespace Parallel_Processing
         private void MyThread(List<CarNode> nodes, CancellationToken cts)
         {
             List<CarNode> ls = new List<CarNode>();
-            CarNode node = nodes.Last();
+            node = nodes.Last();
             m_lock.WaitOne();
             if (cts.IsCancellationRequested)
             {
