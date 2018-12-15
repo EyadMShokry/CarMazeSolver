@@ -20,7 +20,6 @@ namespace MazeSolver
             InitializeComponent();
             parallelSolutionButton.Enabled = false;
             sequentialSolutionButton.Enabled = false;
-            mz = new Maze();
         }
 
         private void browseFileButton_Click(object sender, EventArgs e)
@@ -37,7 +36,7 @@ namespace MazeSolver
                 filePathLabel.Text = sFileName;
                 parallelSolutionButton.Enabled = true;
                 sequentialSolutionButton.Enabled = true;
-                mz.Fill_data_from_file(sFileName);
+                mz = new Maze(sFileName);
             }
             else
             {

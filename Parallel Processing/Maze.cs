@@ -46,15 +46,15 @@ namespace Parallel_Processing
         bool finish;
         private List<CarNode> Resultnodes;
 
-        public Maze()
+        public Maze(string pa)
         {
             startPoint = new Point(-1, -1);
             endPoint = new Point(-1, -1);
             BlockedPoints = new List<Point>();
             sw = new Stopwatch();
-
+            Fill_data_from_file(pa);
         }
-        public void Fill_data_from_file(string file_path)
+        private void Fill_data_from_file(string file_path)
         {
             string fileContent = File.ReadAllText(file_path);
             string[] rows = fileContent.Split('\n');
@@ -92,6 +92,7 @@ namespace Parallel_Processing
 
         public void Sequential_Solve()
         {
+            sw.Reset();
             sw.Start();
             if (startPoint == new Point(-1, -1) || endPoint == new Point(-1, -1))
             {
@@ -120,8 +121,7 @@ namespace Parallel_Processing
                             PATH.Add(node);
                         }
                         ts = sw.Elapsed;
-                        Console.WriteLine(ts.ToString());
-                        String Time = string.Format("Timer:{0,2}.{1,2}", ts.Seconds, ts.Milliseconds);
+                        String Time = string.Format("Timer:{0,2}.{1:00}", ts.Seconds, ts.Milliseconds);
                         sw.Stop();
                         ResultForm resultForm = new ResultForm(MazeBoard_x, MazeBoard_y, startPoint, endPoint, BlockedPoints, PATH, Time);
                         resultForm.ShowDialog();
@@ -164,7 +164,7 @@ namespace Parallel_Processing
                 else
                 {
                     ts = sw.Elapsed;
-                    string Timer = string.Format("Timer:{0,2}.{1,2}", ts.Seconds, ts.Milliseconds);
+                    string Timer = string.Format("Timer:{0,2}.{1:00}", ts.Seconds, ts.Milliseconds);
                     sw.Stop();
                     ResultForm ResultForm = new ResultForm(MazeBoard_x, MazeBoard_y, startPoint, endPoint, BlockedPoints, Resultnodes,Timer);
                     ResultForm.ShowDialog();
@@ -175,6 +175,7 @@ namespace Parallel_Processing
         {
             try
             {
+                sw.Reset();
                 sw.Start();
                 cts = new CancellationTokenSource();
                 List<CarNode> Lis = new List<CarNode>();
