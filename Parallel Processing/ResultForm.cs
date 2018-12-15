@@ -19,9 +19,9 @@ namespace Parallel_Processing
         Point startBox;
         Point endBox;
         private List<Point> blocked;
-        private List<Node> pATH;
+        private List<CarNode> pATH;
 
-        public ResultForm(int x, int y, Point startBox, Point endBox, List<Point> blocked, List<Node> pATH, string timer)
+        public ResultForm(int x, int y, Point startBox, Point endBox, List<Point> blocked, List<CarNode> pATH, string timer)
         {
             Console.WriteLine(timer);
             this.startBox = startBox;

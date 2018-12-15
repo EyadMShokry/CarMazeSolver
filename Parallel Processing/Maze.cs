@@ -11,46 +11,46 @@ using System.Windows.Forms;
 
 namespace Parallel_Processing
 {
-    public struct Node
+    public struct CarNode
     {
 
-        public Node(Point Point, int dir, int path)
+        public CarNode(Point Point, int direction, int currentpath)
         {
             this.Point = Point;
-            this.dir = dir;
-            this.path = path;
+            this.direction = direction;
+            this.currentpath = currentpath;
         }
         public Point Point;
-        public int dir;
-        public int path;
+        public int direction;
+        public int currentpath;
     };
     class Maze
     {
-        int[] dx = { 0, 1, 0, -1 };
-        int[] dy = { -1, 0, 1, 0 };
-        int SIZEX;
-        int SIZEY;
-        bool[,] boolBox;
-        Dictionary<Tuple<Point, int>, Node> par;
-        List<Tuple<Point, int>> visited;
-        List<Point> Blocked;
-        Point startBox;
-        Point endBox;
-        Node node;
-        Queue<Node> queue;
+        int[] direction_x = { 0, 1, 0, -1 };
+        int[] direction_y = { -1, 0, 1, 0 };
+        int MazeBoard_x;
+        int MazeBoard_y;
+        bool[,] boolPoint;
+        Dictionary<Tuple<Point, int>, CarNode> par;
+        List<Tuple<Point, int>> visitedNodes;
+        List<Point> BlockedNodes;
+        Point startPoint;
+        Point endPoint;
+        CarNode node;
+        Queue<CarNode> queue;
         private Stopwatch sw;
         private TimeSpan ts;
         List<Task> Tasks;
         CancellationTokenSource cts = new CancellationTokenSource();
         private readonly Mutex m_lock = new Mutex();
         bool finish;
-        private List<Node> Resultnodes;
+        private List<CarNode> Resultnodes;
 
         public Maze()
         {
-            startBox = new Point(-1, -1);
-            endBox = new Point(-1, -1);
-            Blocked = new List<Point>();
+            startPoint = new Point(-1, -1);
+            endPoint = new Point(-1, -1);
+            BlockedNodes = new List<Point>();
             sw = new Stopwatch();
 
         }
@@ -60,25 +60,25 @@ namespace Parallel_Processing
             string[] rows = fileContent.Split('\n');
             int row_char_Length = rows[0].Length - 1;
             int rowCount = rows.Length;
-            SIZEX = row_char_Length;
-            SIZEY = rowCount;
-            boolBox = new bool[SIZEX, SIZEY];
+            MazeBoard_x = row_char_Length;
+            MazeBoard_y = rowCount;
+            boolPoint = new bool[MazeBoard_x, MazeBoard_y];
             for (int i = 0; i < rowCount; i++)
             {
                 for (int j = 0; j < row_char_Length; j++)
                 {
                     if (rows[i][j] == 'E')
                     {
-                        endBox = new Point(j, i);
+                        endPoint = new Point(j, i);
                     }
                     else if (rows[i][j] == '^')
                     {
-                        startBox = new Point(j, i);
+                        startPoint = new Point(j, i);
                     }
                     else if (rows[i][j] == '*')
                     {
-                        boolBox[j, i] = true;
-                        Blocked.Add(new Point(j, i));
+                        boolPoint[j, i] = true;
+                        BlockedNodes.Add(new Point(j, i));
                     }
                 }
             }
@@ -87,17 +87,17 @@ namespace Parallel_Processing
         {
             sw.Reset();
             sw.Start();
-            if (startBox == new Point(-1, -1) || endBox == new Point(-1, -1))
+            if (startPoint == new Point(-1, -1) || endPoint == new Point(-1, -1))
             {
                 MessageBox.Show("Start Point and End Point Required", "Hey !!", MessageBoxButtons.OK, MessageBoxIcon.Stop);
             }
-            else if (BFS(startBox))
+            else if (BFS(startPoint))
             {
-                List<Node> PATH = new List<Node>();
+                List<CarNode> PATH = new List<CarNode>();
                 PATH.Add(node);
                 while (node.path != 0)
                 {
-                    Tuple<Point, int> tuple = new Tuple<Point, int>(node.Point, node.dir);
+                    Tuple<Point, int> tuple = new Tuple<Point, int>(node.Point, node.direction);
                     node = par[tuple];
                     PATH.Add(node);
                 }
@@ -105,7 +105,7 @@ namespace Parallel_Processing
                 Console.WriteLine(ts.ToString());
                 String Time = string.Format("Timer:{0,2}.{1,2}", ts.Seconds, ts.Milliseconds);
                 sw.Stop();
-                ResultForm ResultForm = new ResultForm(SIZEX, SIZEY, startBox, endBox, Blocked, PATH, Time);
+                ResultForm ResultForm = new ResultForm(MazeBoard_x, MazeBoard_y, startPoint, endPoint, BlockedNodes, PATH, Time);
                 ResultForm.ShowDialog();
             }
             else
@@ -113,33 +113,33 @@ namespace Parallel_Processing
         }
         public bool valid(Point Point)  //check valid position and valid cell
         {
-            if (Blocked.Contains(Point) || Point.X >= SIZEX || Point.Y >= SIZEY || Point.X < 0 || Point.Y < 0)
+            if (BlockedNodes.Contains(Point) || Point.X >= MazeBoard_x || Point.Y >= MazeBoard_y || Point.X < 0 || Point.Y < 0)
                 return false;
             return true;
         }
 
-        private bool BFS(Point point) //O(m*n)
+        private bool BFS(Point point)
         {
-            queue = new Queue<Node>();
-            node = new Node(point, 0, 0);
-            par = new Dictionary<Tuple<Point, int>, Node>();
-            visited = new List<Tuple<Point, int>>();
+            queue = new Queue<CarNode>();
+            node = new CarNode(point, 0, 0);
+            par = new Dictionary<Tuple<Point, int>, CarNode>();
+            visitedNodes = new List<Tuple<Point, int>>();
             queue.Enqueue(node);
             while (queue.Count > 0)
             {
                 node = queue.Dequeue();
-                if (node.Point == endBox)
+                if (node.Point == endPoint)
                     return true;
                 for (int i = 0; i < 2; ++i)
                 {
-                    int new_dir = (node.dir + i) % 4;
-                    Point new_point = new Point(node.Point.X + dx[new_dir], node.Point.Y + dy[new_dir]);
-                    Tuple<Point, int> tuple = new Tuple<Point, int>(new_point, new_dir);
-                    if (valid(new_point) && !visited.Contains(tuple))
+                    int new_direction = (node.direction + i) % 4;
+                    Point new_point = new Point(node.Point.X + direction_x[new_direction], node.Point.Y + direction_y[new_direction]);
+                    Tuple<Point, int> tuple = new Tuple<Point, int>(new_point, new_direction);
+                    if (valid(new_point) && !visitedNodes.Contains(tuple))
                     {
-                        queue.Enqueue(new Node(new_point, new_dir, node.path + 1));
-                        par[tuple] = new Node(node.Point, node.dir, node.path);
-                        visited.Add(tuple);
+                        queue.Enqueue(new CarNode(new_point, new_direction, node.path + 1));
+                        par[tuple] = new CarNode(node.Point, node.direction, node.path);
+                        visitedNodes.Add(tuple);
                     }
                 }
             }
@@ -147,7 +147,7 @@ namespace Parallel_Processing
         }
         public async void Parallel_Solve()
         {
-            if (startBox == new Point(-1, -1) || endBox == new Point(-1, -1))
+            if (startPoint == new Point(-1, -1) || endPoint == new Point(-1, -1))
             {
                 MessageBox.Show("Start Point and End Point Required", "Hey !!", MessageBoxButtons.OK, MessageBoxIcon.Stop);
             }
@@ -165,7 +165,7 @@ namespace Parallel_Processing
                     ts = sw.Elapsed;
                     string Timer = string.Format("Timer:{0,2}.{1,2}", ts.Seconds, ts.Milliseconds);
                     sw.Stop();
-                    ResultForm ResultForm = new ResultForm(SIZEX, SIZEY, startBox, endBox, Blocked, Resultnodes,Timer);
+                    ResultForm ResultForm = new ResultForm(MazeBoard_x, MazeBoard_y, startPoint, endPoint, BlockedNodes, Resultnodes,Timer);
                     ResultForm.ShowDialog();
                 }
             }
@@ -177,9 +177,9 @@ namespace Parallel_Processing
                 sw.Reset();
                 sw.Start();
                 cts = new CancellationTokenSource();
-                List<Node> Lis = new List<Node>();
+                List<CarNode> Lis = new List<CarNode>();
                 Tasks = new List<Task>();
-                Lis.Add(new Node(startBox, 0, 0));
+                Lis.Add(new CarNode(startPoint, 0, 0));
                 this.finish = false;
                 Task task = Task.Run(() => MyThread(Lis, cts.Token));
                 Tasks.Add(task);
@@ -196,17 +196,17 @@ namespace Parallel_Processing
 
         }
 
-        private void MyThread(List<Node> nodes, CancellationToken cts)
+        private void MyThread(List<CarNode> nodes, CancellationToken cts)
         {
-            List<Node> ls = new List<Node>();
-            Node node = nodes.Last();
+            List<CarNode> ls = new List<CarNode>();
+            CarNode node = nodes.Last();
             m_lock.WaitOne();
             if (cts.IsCancellationRequested)
             {
                 m_lock.ReleaseMutex();
                 return;
             }
-            if (node.Point == endBox)
+            if (node.Point == endPoint)
             {
                 this.cts.Cancel();
                 Resultnodes = nodes;
@@ -217,16 +217,16 @@ namespace Parallel_Processing
             m_lock.ReleaseMutex();
             for (int i = 0; i < 2; ++i)
             {
-                int new_dir = (node.dir + i) % 4;
-                Point new_point = new Point(node.Point.X + dx[new_dir], node.Point.Y + dy[new_dir]);
-                if (valid(new_point) && !nodes.Exists(n => n.Point == new_point && n.dir == new_dir))
-                    ls.Add(new Node(new_point, new_dir, node.path + 1));
+                int new_direction = (node.direction + i) % 4;
+                Point new_point = new Point(node.Point.X + direction_x[new_direction], node.Point.Y + direction_y[new_direction]);
+                if (valid(new_point) && !nodes.Exists(n => n.Point == new_point && n.direction == new_direction))
+                    ls.Add(new CarNode(new_point, new_direction, node.path + 1));
             }
             if (ls.Count == 2)
             {
 
-                List<Node> rnode = new List<Node>(nodes);
-                List<Node> lnode = new List<Node>(nodes);
+                List<CarNode> rnode = new List<CarNode>(nodes);
+                List<CarNode> lnode = new List<CarNode>(nodes);
                 rnode.Add(ls.Last());
                 lnode.Add(ls.First());
                 Task task = Task.Run(() => MyThread(rnode, cts));

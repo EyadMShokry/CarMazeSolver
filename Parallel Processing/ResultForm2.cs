@@ -20,9 +20,9 @@ namespace Parallel_Processing
         Point startBox;
         Point endBox;
         private List<Point> blocked;
-        private List<Node> pATH;
+        private List<CarNode> pATH;
 
-        public ResultForm2(int x, int y, Point startBox, Point endBox, List<Point> blocked, List<Node> pATH)
+        public ResultForm2(int x, int y, Point startBox, Point endBox, List<Point> blocked, List<CarNode> pATH)
         {
             this.startBox = startBox;
             this.endBox = endBox;
@@ -88,7 +88,7 @@ namespace Parallel_Processing
             operation(endBox.X, endBox.Y);
             foreach (Point item in blocked)
                 operation(item.X, item.Y);
-            foreach (Node item in pATH)
+            foreach (CarNode item in pATH)
             {
                 int i = item.Point.X;
                 int j = item.Point.Y;
