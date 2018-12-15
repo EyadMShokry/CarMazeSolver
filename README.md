@@ -12,4 +12,4 @@ Input maze should be in text file filled with some characters, for example â€œ.â
 * Antoin Ashraf Fathy
 * Eyad Mohamed Shokry
 * Karim Mamdouh
-* Marc Essam ERian
+* Marc Essam Erian
